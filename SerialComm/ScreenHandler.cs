@@ -38,7 +38,7 @@ namespace SerialComm
 
         private void ReloadScreens(object? sender, EventArgs e)
         {
-            if (_mainWindow.OpenedTimer) return;
+            if (_mainWindow.OpenedWindow) return;
             _screens = Screen.AllScreens;
             _screenNames = new string[_screens.Length];
             SetScreenNames();

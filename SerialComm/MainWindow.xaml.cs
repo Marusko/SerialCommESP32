@@ -18,7 +18,7 @@ namespace SerialComm
         private readonly ScreenHandler _screenHandler;
         private LinkHandler? _linkHandler;
         private ResultWindow _window;
-        public bool OpenedTimer { get; set; }
+        public bool OpenedWindow { get; set; }
         public MainWindow()
         {
             InitializeComponent();
@@ -64,6 +64,7 @@ namespace SerialComm
 
         private void OpenScreen(object sender, RoutedEventArgs e)
         {
+            OpenedWindow = true;
             _screenHandler.StopTimer();
             _linkHandler = new LinkHandler(ResultLink.Text);
             _window = new ResultWindow(_screenHandler, _linkHandler);
