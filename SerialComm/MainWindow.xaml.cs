@@ -63,7 +63,7 @@ namespace SerialComm
                 _screenHandler.SelectedScreen = _screenHandler.GetScreens()[0];
                 WindowBox.SelectedIndex = 0;
             }
-            ReceiveText.Text += $"\n[{DateTime.Now}][INFO]: Selected screen {_screenHandler.SelectedScreen.DeviceName}";
+            ReceiveText.Text += $"[{DateTime.Now}][INFO]: Selected screen {_screenHandler.SelectedScreen.DeviceName}\n";
         }
 
         private void OpenScreen(object sender, RoutedEventArgs e)
@@ -76,7 +76,7 @@ namespace SerialComm
             _linkHandler = new LinkHandler(ResultLink.Text, this);
             _window = new ResultWindow(_screenHandler, _linkHandler);
             _window.Show();
-            ReceiveText.Text += $"\n[{DateTime.Now}][INFO]: Opened window on {_screenHandler.SelectedScreen.DeviceName}";
+            ReceiveText.Text += $"[{DateTime.Now}][INFO]: Opened window on {_screenHandler.SelectedScreen.DeviceName}\n";
         }
 
         private void Connect(object sender, EventArgs ea)
@@ -102,11 +102,11 @@ namespace SerialComm
             catch (Exception e)
             {
                 MessageBox.Show(e.Message, "Warning", MessageBoxButton.OK, MessageBoxImage.Error);
-                ReceiveText.Text += $"\n[{DateTime.Now}][WARNING]: {e.Message}";
+                ReceiveText.Text += $"[{DateTime.Now}][WARNING]: {e.Message}\n";
                 Disconnect(sender, ea);
-                ReceiveText.Text += $"\n[{DateTime.Now}][INFO]: Disconnected";
+                ReceiveText.Text += $"[{DateTime.Now}][INFO]: Disconnected\n";
             }
-            ReceiveText.Text += $"\n[{DateTime.Now}][INFO]: Connected to port: {PortBox.Text}";
+            ReceiveText.Text += $"[{DateTime.Now}][INFO]: Connected to port: {PortBox.Text}\n";
         }
         private void Disconnect(object sender, EventArgs ea)
         {
@@ -129,9 +129,9 @@ namespace SerialComm
             catch (Exception e)
             {
                 MessageBox.Show(e.Message, "Warning", MessageBoxButton.OK, MessageBoxImage.Error);
-                ReceiveText.Text += $"\n[{DateTime.Now}][WARNING]: {e.Message}";
+                ReceiveText.Text += $"[{DateTime.Now}][WARNING]: {e.Message}\n";
             }
-            ReceiveText.Text += $"\n[{DateTime.Now}][INFO]: Disconnected";
+            ReceiveText.Text += $"[{DateTime.Now}][INFO]: Disconnected\n";
         }
 
         private void ChangeMode(object sender, EventArgs ea)
@@ -140,7 +140,7 @@ namespace SerialComm
             {
                 _mode = 1;
                 ModeLabel.Content = "Write";
-                ReceiveText.Text += $"\n[{DateTime.Now}][INFO]: Writing mode";
+                ReceiveText.Text += $"[{DateTime.Now}][INFO]: Writing mode\n";
                 SendBtn.IsEnabled = true;
                 SendText.IsEnabled = true;
             }
@@ -148,7 +148,7 @@ namespace SerialComm
             {
                 _mode = 0;
                 ModeLabel.Content = "Read";
-                ReceiveText.Text += $"\n[{DateTime.Now}][INFO]: Reading mode";
+                ReceiveText.Text += $"[{DateTime.Now}][INFO]: Reading mode\n";
                 SendBtn.IsEnabled = false;
                 SendText.IsEnabled = false;
             }
@@ -157,7 +157,7 @@ namespace SerialComm
         private void Reset(object sender, EventArgs ea)
         {
             _port.WriteLine("2");
-            ReceiveText.Text += $"\n[{DateTime.Now}][INFO]: RESET";
+            ReceiveText.Text += $"[{DateTime.Now}][INFO]: RESET\n";
         }
 
         private void Lock(object sender, EventArgs ea)
@@ -167,7 +167,7 @@ namespace SerialComm
             {
                 _prefix = Prefix.Text;
                 Prefix.IsEnabled = false;
-                ReceiveText.Text += $"\n[{DateTime.Now}][INFO]: Prefix {_prefix} locked";
+                ReceiveText.Text += $"[{DateTime.Now}][INFO]: Prefix {_prefix} locked\n";
             }
         }
 
@@ -180,7 +180,7 @@ namespace SerialComm
                 _port.WriteLine("1");
                 Thread.Sleep(500);
                 _port.WriteLine($"{_prefix}-{n}#");
-                ReceiveText.Text += $"\n[{DateTime.Now}][INFO]: Written {_prefix}-{n}";
+                ReceiveText.Text += $"[{DateTime.Now}][INFO]: Written {_prefix}-{n}\n";
                 SendText.Text = "";
             }
         }
@@ -198,25 +198,25 @@ namespace SerialComm
                     var n = data.Replace("\n", "").Replace("\r", "").Replace(" ", "");
                     if (n.Equals("300"))
                     {
-                        ReceiveText.Text += $"\n[{DateTime.Now}][WARNING]: Reading failed";
+                        ReceiveText.Text += $"[{DateTime.Now}][WARNING]: Reading failed\n";
                         return;
                     }
                     else if(n.Equals("301"))
                     {
-                        ReceiveText.Text += $"\n[{DateTime.Now}][WARNING]: Reading authentication failed";
+                        ReceiveText.Text += $"[{DateTime.Now}][WARNING]: Reading authentication failed\n";
                         return;
                     }
                     else if (n.Equals("400"))
                     {
-                        ReceiveText.Text += $"\n[{DateTime.Now}][WARNING]: Writing failed";
+                        ReceiveText.Text += $"[{DateTime.Now}][WARNING]: Writing failed\n";
                         return;
                     }
                     else if (n.Equals("401"))
                     {
-                        ReceiveText.Text += $"\n[{DateTime.Now}][WARNING]: Writing authentication failed";
+                        ReceiveText.Text += $"[{DateTime.Now}][WARNING]: Writing authentication failed\n";
                         return;
                     }
-                    ReceiveText.Text += $"\n[{DateTime.Now}][INFO]: Received: {n}";
+                    ReceiveText.Text += $"[{DateTime.Now}][INFO]: Received: {n}\n";
                     var split = n.Split("-");
                     if (split[0].Equals(_prefix))
                     {
@@ -254,7 +254,7 @@ namespace SerialComm
             {
                 Dispatcher.Invoke(() =>
                 {
-                    ReceiveText.Text += $"\n[{DateTime.Now}][INFO]: Writing new data";
+                    ReceiveText.Text += $"[{DateTime.Now}][INFO]: Writing new data\n";
                 });
             }
         }

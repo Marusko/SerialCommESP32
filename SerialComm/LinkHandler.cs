@@ -39,7 +39,7 @@ namespace SerialComm
             catch (Exception e)
             {
                 MessageBox.Show(e.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                _mainWindow.ReceiveText.Text += $"\n[{DateTime.Now}][WARNING]: {e.Message}";
+                _mainWindow.ReceiveText.Text += $"[{DateTime.Now}][WARNING]: {e.Message}\n";
                 return;
             }
 
@@ -51,7 +51,7 @@ namespace SerialComm
             else
             {
                 MessageBox.Show($"Error: {response.StatusCode}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                _mainWindow.ReceiveText.Text += $"\n[{DateTime.Now}][WARNING]: {response.StatusCode}";
+                _mainWindow.ReceiveText.Text += $"[{DateTime.Now}][WARNING]: {response.StatusCode}\n";
             }
         }
         public void StopTimer()
