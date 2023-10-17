@@ -13,7 +13,7 @@ namespace SerialComm
     {
         private readonly string _mainLink;
         private readonly System.Windows.Threading.DispatcherTimer _timer = new();
-        private readonly MainWindow _mainWindow;
+        public readonly MainWindow _mainWindow;
         private readonly HttpClient _httpClient;
         public List<Racer> Racers { get; set; } = new List<Racer>();
 

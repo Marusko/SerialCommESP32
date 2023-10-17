@@ -37,10 +37,14 @@ namespace SerialComm
             DisconnectBtn.IsEnabled = false;
             ModeBtn.IsEnabled = false;
             SendBtn.IsEnabled = false;
+            SendText.IsEnabled = false;
             LockBtn.IsEnabled = false;
             ResetBtn.IsEnabled = false;
             PortBox.IsEnabled = true;
             WindowBtn.IsEnabled = false;
+            WindowBox.IsEnabled = false;
+            ResultLink.IsEnabled = false;
+            Prefix.IsEnabled = false;
             string[] ports = SerialPort.GetPortNames();
             foreach (string port in ports)
             {
@@ -64,6 +68,9 @@ namespace SerialComm
 
         private void OpenScreen(object sender, RoutedEventArgs e)
         {
+            WindowBtn.IsEnabled = false;
+            WindowBox.IsEnabled = false;
+            ResultLink.IsEnabled = false;
             OpenedWindow = true;
             _screenHandler.StopTimer();
             _linkHandler = new LinkHandler(ResultLink.Text, this);
@@ -77,11 +84,13 @@ namespace SerialComm
             ConnectBtn.IsEnabled = false;
             DisconnectBtn.IsEnabled = true;
             ModeBtn.IsEnabled = true;
-            SendBtn.IsEnabled = true;
             LockBtn.IsEnabled = true;
             ResetBtn.IsEnabled = true;
             PortBox.IsEnabled = false;
             WindowBtn.IsEnabled = true;
+            WindowBox.IsEnabled = true;
+            ResultLink.IsEnabled = true;
+            Prefix.IsEnabled = true;
             try
             {
                 _port.PortName = PortBox.Text;
@@ -105,11 +114,14 @@ namespace SerialComm
             DisconnectBtn.IsEnabled = false;
             ModeBtn.IsEnabled = false;
             SendBtn.IsEnabled = false;
+            SendText.IsEnabled = false;
             LockBtn.IsEnabled = false;
             ResetBtn.IsEnabled = false;
             PortBox.IsEnabled = true;
-            Prefix.IsEnabled = true;
             WindowBtn.IsEnabled = false;
+            WindowBox.IsEnabled = false;
+            ResultLink.IsEnabled = false;
+            Prefix.IsEnabled = false;
             try
             {
                 _port.Close();
@@ -129,12 +141,16 @@ namespace SerialComm
                 _mode = 1;
                 ModeLabel.Content = "Write";
                 ReceiveText.Text += $"\n[{DateTime.Now}][INFO]: Writing mode";
+                SendBtn.IsEnabled = true;
+                SendText.IsEnabled = true;
             }
             else
             {
                 _mode = 0;
                 ModeLabel.Content = "Read";
                 ReceiveText.Text += $"\n[{DateTime.Now}][INFO]: Reading mode";
+                SendBtn.IsEnabled = false;
+                SendText.IsEnabled = false;
             }
         }
 
@@ -165,6 +181,7 @@ namespace SerialComm
                 Thread.Sleep(500);
                 _port.WriteLine($"{_prefix}-{n}#");
                 ReceiveText.Text += $"\n[{DateTime.Now}][INFO]: Written {_prefix}-{n}";
+                SendText.Text = "";
             }
         }
 

@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SerialComm"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="MainWindow" Height="450" Width="800" ResizeMode="CanMinimize">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="2*"/>
@@ -31,7 +31,7 @@
             <Button Grid.Column="1" Name="ModeBtn" Padding="20" Click="ChangeMode" Content="Mode" HorizontalAlignment="Center"  VerticalAlignment="Center" Margin="160,0,0,0"/>
             <Label Grid.Column="1" Name="ModeLabel" Padding="20" Content="Read" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="56,0,0,0"/>
             <Button Grid.Column="2" Name="ResetBtn" Content="Reset" Padding="20" Click="Reset" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-            <TextBox Grid.Column="0" Name="Prefix" HorizontalAlignment="Left" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Center" Width="137" Margin="23,0,0,0" Height="24"/>
+            <TextBox Grid.Column="0" Name="Prefix" HorizontalAlignment="Left" TextWrapping="Wrap" VerticalAlignment="Center" Width="137" Margin="23,0,0,0" Height="24"/>
             <Button Grid.Column="0" Name="LockBtn" Content="Lock" Padding="20" Click="Lock" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="178,0,0,0"/>
         </Grid>
         <Grid Grid.Row="2">
@@ -40,9 +40,9 @@
                 <ColumnDefinition Width="2*"/>
                 <ColumnDefinition Width="2*"/>
             </Grid.ColumnDefinitions>
-            <TextBox Grid.Column="1" Name="SendText" HorizontalAlignment="Center" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="137" Height="24" Margin="0,46,0,0"/>
+            <TextBox Grid.Column="1" Name="SendText" HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Top" Width="137" Height="24" Margin="0,46,0,0"/>
             <Button Grid.Column="1" Name="SendBtn" Content="Send" Padding="20" Click="Write" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,104,0,0"/>
-            <TextBox Grid.Column="0" Name="ResultLink" HorizontalAlignment="Center" TextWrapping="Wrap" Text="Link" VerticalAlignment="Top" Width="137" Height="24" />
+            <TextBox Grid.Column="0" Name="ResultLink" HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Top" Width="137" Height="24" />
             <TextBlock Grid.Column="0" Name="ReceiveText" HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" Height="175" Width="334"/>
             <Button Grid.Column="2" Name="WindowBtn" Click="OpenScreen" Content="Open window" Padding="20"  HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,104,0,0"/>
             <ComboBox Grid.Column="2" Name="WindowBox" HorizontalAlignment="Center" VerticalAlignment="Top" Width="200" Height="43" Margin="0,37,0,0"/>
