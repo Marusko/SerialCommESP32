@@ -13,12 +13,14 @@ namespace SerialComm
     {
         private readonly string _mainLink;
         private readonly System.Windows.Threading.DispatcherTimer _timer = new();
+        private readonly MainWindow _mainWindow;
         private readonly HttpClient _httpClient;
         public List<Racer> Racers { get; set; } = new List<Racer>();
 
-        public LinkHandler(string mainLink)
+        public LinkHandler(string mainLink, MainWindow mw)
         {
             _mainLink = mainLink;
+            _mainWindow = mw;
             _httpClient = new HttpClient();
             ReadMainLink();
 
@@ -37,6 +39,7 @@ namespace SerialComm
             catch (Exception e)
             {
                 MessageBox.Show(e.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                _mainWindow.ReceiveText.Text += $"\n[{DateTime.Now}][WARNING]: {e.Message}";
                 return;
             }
 
@@ -48,6 +51,7 @@ namespace SerialComm
             else
             {
                 MessageBox.Show($"Error: {response.StatusCode}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                _mainWindow.ReceiveText.Text += $"\n[{DateTime.Now}][WARNING]: {response.StatusCode}";
             }
         }
         public void StopTimer()
