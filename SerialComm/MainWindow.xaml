@@ -12,7 +12,7 @@
             <ColumnDefinition Width="2*"/>
         </Grid.ColumnDefinitions>
         <ScrollViewer Name="Scroller" Grid.Column="0">
-            <TextBlock Name="ReceiveText" Padding="0 0 5 0" HorizontalAlignment="Left" TextWrapping="Wrap" VerticalAlignment="Top"/>
+            <TextBlock Name="LogsTextBlock" Padding="0 0 5 0" HorizontalAlignment="Left" TextWrapping="Wrap" VerticalAlignment="Top"/>
         </ScrollViewer>
         <Grid Grid.Column="1">
             <Grid.RowDefinitions>

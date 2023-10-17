@@ -65,7 +65,7 @@ namespace SerialComm
                 _screenHandler.SelectedScreen = _screenHandler.GetScreens()[0];
                 WindowBox.SelectedIndex = 0;
             }
-            ReceiveText.Text += $"[{DateTime.Now}][INFO]: Selected screen {_screenHandler.SelectedScreen.DeviceName}\n";
+            LogsTextBlock.Text += $"[{DateTime.Now}][INFO]: Selected screen {_screenHandler.SelectedScreen.DeviceName}\n";
             Scroller.ScrollToBottom();
         }
 
@@ -82,7 +82,7 @@ namespace SerialComm
                 _screenHandler.StopTimer();
                 _window = new ResultWindow(_screenHandler, _linkHandler);
                 _window.Show();
-                ReceiveText.Text += $"[{DateTime.Now}][INFO]: Opened window on {_screenHandler.SelectedScreen.DeviceName}\n";
+                LogsTextBlock.Text += $"[{DateTime.Now}][INFO]: Opened window on {_screenHandler.SelectedScreen.DeviceName}\n";
                 Scroller.ScrollToBottom();
             }
             else
@@ -119,12 +119,12 @@ namespace SerialComm
             catch (Exception e)
             {
                 MessageBox.Show(e.Message, "Warning", MessageBoxButton.OK, MessageBoxImage.Error);
-                ReceiveText.Text += $"[{DateTime.Now}][WARNING]: {e.Message}\n";
+                LogsTextBlock.Text += $"[{DateTime.Now}][WARNING]: {e.Message}\n";
                 Disconnect(sender, ea);
-                ReceiveText.Text += $"[{DateTime.Now}][INFO]: Disconnected\n";
+                LogsTextBlock.Text += $"[{DateTime.Now}][INFO]: Disconnected\n";
                 Scroller.ScrollToBottom();
             }
-            ReceiveText.Text += $"[{DateTime.Now}][INFO]: Connected to port: {PortBox.Text}\n";
+            LogsTextBlock.Text += $"[{DateTime.Now}][INFO]: Connected to port: {PortBox.Text}\n";
             Scroller.ScrollToBottom();
         }
         private void Disconnect(object sender, EventArgs ea)
@@ -154,10 +154,10 @@ namespace SerialComm
             catch (Exception e)
             {
                 MessageBox.Show(e.Message, "Warning", MessageBoxButton.OK, MessageBoxImage.Error);
-                ReceiveText.Text += $"[{DateTime.Now}][WARNING]: {e.Message}\n";
+                LogsTextBlock.Text += $"[{DateTime.Now}][WARNING]: {e.Message}\n";
                 Scroller.ScrollToBottom();
             }
-            ReceiveText.Text += $"[{DateTime.Now}][INFO]: Disconnected\n";
+            LogsTextBlock.Text += $"[{DateTime.Now}][INFO]: Disconnected\n";
             Scroller.ScrollToBottom();
         }
 
@@ -167,14 +167,14 @@ namespace SerialComm
             {
                 _mode = 1;
                 ModeLabel.Content = "Write";
-                ReceiveText.Text += $"[{DateTime.Now}][INFO]: Writing mode\n";
+                LogsTextBlock.Text += $"[{DateTime.Now}][INFO]: Writing mode\n";
                 Scroller.ScrollToBottom();
             }
             else
             {
                 _mode = 0;
                 ModeLabel.Content = "Read";
-                ReceiveText.Text += $"[{DateTime.Now}][INFO]: Reading mode\n";
+                LogsTextBlock.Text += $"[{DateTime.Now}][INFO]: Reading mode\n";
                 Scroller.ScrollToBottom();
                 SendBtn.IsEnabled = false;
                 SendText.IsEnabled = false;
@@ -188,8 +188,13 @@ namespace SerialComm
             ModeLabel.Content = "Read";
             SendBtn.IsEnabled = false;
             SendText.IsEnabled = false;
-            ReceiveText.Text += $"[{DateTime.Now}][INFO]: RESET\n";
+            LogsTextBlock.Text += $"[{DateTime.Now}][INFO]: RESET\n";
             Scroller.ScrollToBottom();
+        }
+
+        private void ClearLogs(object sender, EventArgs ea)
+        {
+            LogsTextBlock.Text = "";
         }
 
         private void Lock(object sender, EventArgs ea)
@@ -201,7 +206,7 @@ namespace SerialComm
                 {
                     _prefix = Prefix.Text;
                     Prefix.IsEnabled = false;
-                    ReceiveText.Text += $"[{DateTime.Now}][INFO]: Prefix {_prefix} locked\n";
+                    LogsTextBlock.Text += $"[{DateTime.Now}][INFO]: Prefix {_prefix} locked\n";
                     Scroller.ScrollToBottom();
                     LockBtn.Content = "Unlock";
                     _prefixLocked = true;
@@ -212,7 +217,7 @@ namespace SerialComm
                 var resp = MessageBox.Show("Unlock prefix?", "Unlock", MessageBoxButton.YesNo, MessageBoxImage.Question);
                 if (resp == MessageBoxResult.Yes)
                 {
-                    ReceiveText.Text += $"[{DateTime.Now}][INFO]: Prefix {_prefix} unlocked\n";
+                    LogsTextBlock.Text += $"[{DateTime.Now}][INFO]: Prefix {_prefix} unlocked\n";
                     Scroller.ScrollToBottom();
                     _prefix = "";
                     Prefix.IsEnabled = true;
@@ -233,7 +238,7 @@ namespace SerialComm
                 _port.WriteLine("1");
                 Thread.Sleep(500);
                 _port.WriteLine($"{_prefix}-{n}#");
-                ReceiveText.Text += $"[{DateTime.Now}][INFO]: Writing {_prefix}-{n}\n";
+                LogsTextBlock.Text += $"[{DateTime.Now}][INFO]: Writing {_prefix}-{n}\n";
                 Scroller.ScrollToBottom();
                 SendText.Text = "";
             }
@@ -252,17 +257,17 @@ namespace SerialComm
                     var n = data.Replace("\n", "").Replace("\r", "").Replace(" ", "");
                     if (n.Equals("300"))
                     {
-                        ReceiveText.Text += $"[{DateTime.Now}][WARNING]: Reading failed\n";
+                        LogsTextBlock.Text += $"[{DateTime.Now}][WARNING]: Reading failed\n";
                         Scroller.ScrollToBottom();
                     }
                     else if(n.Equals("301"))
                     {
-                        ReceiveText.Text += $"[{DateTime.Now}][WARNING]: Reading authentication failed\n";
+                        LogsTextBlock.Text += $"[{DateTime.Now}][WARNING]: Reading authentication failed\n";
                         Scroller.ScrollToBottom();
                     }
                     else
                     {
-                        ReceiveText.Text += $"[{DateTime.Now}][INFO]: Received: {n}\n";
+                        LogsTextBlock.Text += $"[{DateTime.Now}][INFO]: Received: {n}\n";
                         Scroller.ScrollToBottom();
                         var split = n.Split("-");
                         if (split[0].Equals(_prefix))
@@ -289,12 +294,12 @@ namespace SerialComm
                         _window.AGRLabelR.Content = r.AgeGroupRank;
                         _window.GRLabelR.Content = r.GenderRank;
                         _window.ORLabelR.Content = r.OverallRank;
-                        ReceiveText.Text += $"[{DateTime.Now}][INFO]: Number {bib} found\n";
+                        LogsTextBlock.Text += $"[{DateTime.Now}][INFO]: Number {bib} found\n";
                         Scroller.ScrollToBottom();
                     }
                     else
                     {
-                        ReceiveText.Text += $"[{DateTime.Now}][WARNING]: Number {bib} not found\n";
+                        LogsTextBlock.Text += $"[{DateTime.Now}][WARNING]: Number {bib} not found\n";
                         Scroller.ScrollToBottom();
                     }
                 });
@@ -316,34 +321,34 @@ namespace SerialComm
                     var n = data.Replace("\n", "").Replace("\r", "").Replace(" ", "");
                     if (n.Equals("300"))
                     {
-                        ReceiveText.Text += $"[{DateTime.Now}][WARNING]: Reading failed\n";
+                        LogsTextBlock.Text += $"[{DateTime.Now}][WARNING]: Reading failed\n";
                         Scroller.ScrollToBottom();
                     }
                     else if (n.Equals("301"))
                     {
-                        ReceiveText.Text += $"[{DateTime.Now}][WARNING]: Reading authentication failed\n";
+                        LogsTextBlock.Text += $"[{DateTime.Now}][WARNING]: Reading authentication failed\n";
                         Scroller.ScrollToBottom();
                     }
                     else if (n.Equals("400"))
                     {
-                        ReceiveText.Text += $"[{DateTime.Now}][WARNING]: Writing failed\n";
+                        LogsTextBlock.Text += $"[{DateTime.Now}][WARNING]: Writing failed\n";
                         Scroller.ScrollToBottom();
                     }
                     else if (n.Equals("401"))
                     {
-                        ReceiveText.Text += $"[{DateTime.Now}][WARNING]: Writing authentication failed\n";
+                        LogsTextBlock.Text += $"[{DateTime.Now}][WARNING]: Writing authentication failed\n";
                         Scroller.ScrollToBottom();
                     }
                     else if (n.Equals("420"))
                     {
-                        ReceiveText.Text += $"[{DateTime.Now}][INFO]: Writing successful\n";
+                        LogsTextBlock.Text += $"[{DateTime.Now}][INFO]: Writing successful\n";
                         Scroller.ScrollToBottom();
                     }
                     else
                     {
                         SendBtn.IsEnabled = true;
                         SendText.IsEnabled = true;
-                        ReceiveText.Text += $"[{DateTime.Now}][INFO]: Ready to write\n";
+                        LogsTextBlock.Text += $"[{DateTime.Now}][INFO]: Ready to write\n";
                         Scroller.ScrollToBottom();
                     }
                 });
