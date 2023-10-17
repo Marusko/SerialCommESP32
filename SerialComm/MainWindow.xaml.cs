@@ -8,18 +8,18 @@ namespace SerialComm
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow
     {
-        private int _mode = 0;
+        private int _mode;
         private string _prefix = "";
         private readonly SerialPort _port;
-        private bool _prefixLocked = false;
+        private bool _prefixLocked;
         public bool CanOpen = true;
 
         private readonly ScreenHandler _screenHandler;
         private LinkHandler? _linkHandler;
-        private ResultWindow _window;
-        public bool OpenedWindow { get; set; }
+        private ResultWindow? _window;
+        public bool OpenedWindow { get; private set; }
         public MainWindow()
         {
             InitializeComponent();
@@ -47,6 +47,7 @@ namespace SerialComm
             WindowBox.IsEnabled = false;
             ResultLink.IsEnabled = false;
             Prefix.IsEnabled = false;
+            Closing += Ending;
             string[] ports = SerialPort.GetPortNames();
             foreach (string port in ports)
             {
@@ -82,7 +83,7 @@ namespace SerialComm
                 _screenHandler.StopTimer();
                 _window = new ResultWindow(_screenHandler, _linkHandler);
                 _window.Show();
-                LogsTextBlock.Text += $"[{DateTime.Now}][INFO]: Opened window on {_screenHandler.SelectedScreen.DeviceName}\n";
+                LogsTextBlock.Text += $"[{DateTime.Now}][INFO]: Opened window on {_screenHandler.SelectedScreen?.DeviceName}\n";
                 Scroller.ScrollToBottom();
             }
             else
@@ -127,7 +128,7 @@ namespace SerialComm
             LogsTextBlock.Text += $"[{DateTime.Now}][INFO]: Connected to port: {PortBox.Text}\n";
             Scroller.ScrollToBottom();
         }
-        private void Disconnect(object sender, EventArgs ea)
+        private void Disconnect(object? sender, EventArgs ea)
         {
             ConnectBtn.IsEnabled = true;
             DisconnectBtn.IsEnabled = false;
@@ -248,12 +249,11 @@ namespace SerialComm
         {
             Dispatcher.Invoke(() =>
             {
-                var data = "";
                 if (_port.IsOpen)
                 {
                     _port.WriteLine("0");
                     Thread.Sleep(500);
-                    data = _port.ReadExisting();
+                    var data = _port.ReadExisting();
                     var n = data.Replace("\n", "").Replace("\r", "").Replace(" ", "");
                     if (n.Equals("300"))
                     {
@@ -283,7 +283,7 @@ namespace SerialComm
         {
             if (_linkHandler is not null)
             {
-                var r = _linkHandler.Racers.Find(x => x.Bib.Equals(bib));
+                var r = _linkHandler.Racers?.Find(x => x.Bib.Equals(bib));
                 Dispatcher.Invoke(() =>
                 {
                     if (_window is not null && r is not null)
@@ -355,6 +355,9 @@ namespace SerialComm
             }
         }
 
-
+        private void Ending(object? sender, EventArgs e)
+        {
+            Disconnect(sender, e);
+        }
     }
 }

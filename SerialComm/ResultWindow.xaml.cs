@@ -33,9 +33,9 @@ namespace SerialComm
         private void Ending(object? sender, EventArgs e)
         {
             _linkHandler.StopTimer();
-            _linkHandler._mainWindow.WindowBtn.IsEnabled = true;
-            _linkHandler._mainWindow.WindowBox.IsEnabled = true;
-            _linkHandler._mainWindow.ResultLink.IsEnabled = true;
+            _linkHandler.MainWindow.WindowBtn.IsEnabled = true;
+            _linkHandler.MainWindow.WindowBox.IsEnabled = true;
+            _linkHandler.MainWindow.ResultLink.IsEnabled = true;
         }
     }
 }

@@ -13,14 +13,14 @@ namespace SerialComm
     {
         private readonly string _mainLink;
         private readonly System.Windows.Threading.DispatcherTimer _timer = new();
-        public readonly MainWindow _mainWindow;
+        public readonly MainWindow MainWindow;
         private readonly HttpClient _httpClient;
-        public List<Racer> Racers { get; set; } = new List<Racer>();
+        public List<Racer>? Racers { get; private set; } = new();
 
         public LinkHandler(string mainLink, MainWindow mw)
         {
             _mainLink = mainLink;
-            _mainWindow = mw;
+            MainWindow = mw;
             _httpClient = new HttpClient();
             ReadMainLink();
 
@@ -39,9 +39,9 @@ namespace SerialComm
             catch (Exception e)
             {
                 MessageBox.Show(e.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                _mainWindow.LogsTextBlock.Text += $"[{DateTime.Now}][WARNING]: {e.Message}\n";
-                _mainWindow.Scroller.ScrollToBottom();
-                _mainWindow.CanOpen = false;
+                MainWindow.LogsTextBlock.Text += $"[{DateTime.Now}][WARNING]: {e.Message}\n";
+                MainWindow.Scroller.ScrollToBottom();
+                MainWindow.CanOpen = false;
                 return;
             }
 
@@ -53,8 +53,8 @@ namespace SerialComm
             else
             {
                 MessageBox.Show($"Error: {response.StatusCode}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                _mainWindow.LogsTextBlock.Text += $"[{DateTime.Now}][WARNING]: {response.StatusCode}\n";
-                _mainWindow.Scroller.ScrollToBottom();
+                MainWindow.LogsTextBlock.Text += $"[{DateTime.Now}][WARNING]: {response.StatusCode}\n";
+                MainWindow.Scroller.ScrollToBottom();
             }
         }
         public void StopTimer()
