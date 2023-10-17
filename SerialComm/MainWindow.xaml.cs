@@ -12,7 +12,9 @@ namespace SerialComm
     {
         private int _mode = 0;
         private string _prefix = "";
-        private SerialPort _port;
+        private readonly SerialPort _port;
+        private bool _prefixLocked = false;
+        public bool CanOpen = true;
 
         private readonly ScreenHandler _screenHandler;
         private LinkHandler? _linkHandler;
@@ -64,19 +66,34 @@ namespace SerialComm
                 WindowBox.SelectedIndex = 0;
             }
             ReceiveText.Text += $"[{DateTime.Now}][INFO]: Selected screen {_screenHandler.SelectedScreen.DeviceName}\n";
+            Scroller.ScrollToBottom();
         }
 
         private void OpenScreen(object sender, RoutedEventArgs e)
         {
+            CanOpen = true;
             WindowBtn.IsEnabled = false;
             WindowBox.IsEnabled = false;
             ResultLink.IsEnabled = false;
             OpenedWindow = true;
-            _screenHandler.StopTimer();
             _linkHandler = new LinkHandler(ResultLink.Text, this);
-            _window = new ResultWindow(_screenHandler, _linkHandler);
-            _window.Show();
-            ReceiveText.Text += $"[{DateTime.Now}][INFO]: Opened window on {_screenHandler.SelectedScreen.DeviceName}\n";
+            if (CanOpen)
+            {
+                _screenHandler.StopTimer();
+                _window = new ResultWindow(_screenHandler, _linkHandler);
+                _window.Show();
+                ReceiveText.Text += $"[{DateTime.Now}][INFO]: Opened window on {_screenHandler.SelectedScreen.DeviceName}\n";
+                Scroller.ScrollToBottom();
+            }
+            else
+            {
+                _linkHandler.StopTimer();
+                _linkHandler = null;
+                OpenedWindow = false;
+                WindowBtn.IsEnabled = true;
+                WindowBox.IsEnabled = true;
+                ResultLink.IsEnabled = true;
+            }
         }
 
         private void Connect(object sender, EventArgs ea)
@@ -105,8 +122,10 @@ namespace SerialComm
                 ReceiveText.Text += $"[{DateTime.Now}][WARNING]: {e.Message}\n";
                 Disconnect(sender, ea);
                 ReceiveText.Text += $"[{DateTime.Now}][INFO]: Disconnected\n";
+                Scroller.ScrollToBottom();
             }
             ReceiveText.Text += $"[{DateTime.Now}][INFO]: Connected to port: {PortBox.Text}\n";
+            Scroller.ScrollToBottom();
         }
         private void Disconnect(object sender, EventArgs ea)
         {
@@ -125,13 +144,21 @@ namespace SerialComm
             try
             {
                 _port.Close();
+                _prefix = "";
+                Prefix.Text = "";
+                LockBtn.Content = "Lock";
+                _prefixLocked = false;
+                _mode = 0;
+                ModeLabel.Content = "Read";
             }
             catch (Exception e)
             {
                 MessageBox.Show(e.Message, "Warning", MessageBoxButton.OK, MessageBoxImage.Error);
                 ReceiveText.Text += $"[{DateTime.Now}][WARNING]: {e.Message}\n";
+                Scroller.ScrollToBottom();
             }
             ReceiveText.Text += $"[{DateTime.Now}][INFO]: Disconnected\n";
+            Scroller.ScrollToBottom();
         }
 
         private void ChangeMode(object sender, EventArgs ea)
@@ -141,14 +168,14 @@ namespace SerialComm
                 _mode = 1;
                 ModeLabel.Content = "Write";
                 ReceiveText.Text += $"[{DateTime.Now}][INFO]: Writing mode\n";
-                SendBtn.IsEnabled = true;
-                SendText.IsEnabled = true;
+                Scroller.ScrollToBottom();
             }
             else
             {
                 _mode = 0;
                 ModeLabel.Content = "Read";
                 ReceiveText.Text += $"[{DateTime.Now}][INFO]: Reading mode\n";
+                Scroller.ScrollToBottom();
                 SendBtn.IsEnabled = false;
                 SendText.IsEnabled = false;
             }
@@ -157,17 +184,41 @@ namespace SerialComm
         private void Reset(object sender, EventArgs ea)
         {
             _port.WriteLine("2");
+            _mode = 0;
+            ModeLabel.Content = "Read";
+            SendBtn.IsEnabled = false;
+            SendText.IsEnabled = false;
             ReceiveText.Text += $"[{DateTime.Now}][INFO]: RESET\n";
+            Scroller.ScrollToBottom();
         }
 
         private void Lock(object sender, EventArgs ea)
         {
-            var resp = MessageBox.Show("Lock prefix?", "Lock", MessageBoxButton.YesNo, MessageBoxImage.Question);
-            if (resp == MessageBoxResult.Yes)
+            if (!_prefixLocked)
             {
-                _prefix = Prefix.Text;
-                Prefix.IsEnabled = false;
-                ReceiveText.Text += $"[{DateTime.Now}][INFO]: Prefix {_prefix} locked\n";
+                var resp = MessageBox.Show("Lock prefix?", "Lock", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                if (resp == MessageBoxResult.Yes)
+                {
+                    _prefix = Prefix.Text;
+                    Prefix.IsEnabled = false;
+                    ReceiveText.Text += $"[{DateTime.Now}][INFO]: Prefix {_prefix} locked\n";
+                    Scroller.ScrollToBottom();
+                    LockBtn.Content = "Unlock";
+                    _prefixLocked = true;
+                }
+            }
+            else
+            {
+                var resp = MessageBox.Show("Unlock prefix?", "Unlock", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                if (resp == MessageBoxResult.Yes)
+                {
+                    ReceiveText.Text += $"[{DateTime.Now}][INFO]: Prefix {_prefix} unlocked\n";
+                    Scroller.ScrollToBottom();
+                    _prefix = "";
+                    Prefix.IsEnabled = true;
+                    LockBtn.Content = "Lock";
+                    _prefixLocked = false;
+                }
             }
         }
 
@@ -175,12 +226,15 @@ namespace SerialComm
         {
             if (_port.IsOpen)
             {
+                SendBtn.IsEnabled = false;
+                SendText.IsEnabled = false;
                 var m = SendText.Text;
                 var n = m.Replace("\n", "").Replace("\r", "");
                 _port.WriteLine("1");
                 Thread.Sleep(500);
                 _port.WriteLine($"{_prefix}-{n}#");
-                ReceiveText.Text += $"[{DateTime.Now}][INFO]: Written {_prefix}-{n}\n";
+                ReceiveText.Text += $"[{DateTime.Now}][INFO]: Writing {_prefix}-{n}\n";
+                Scroller.ScrollToBottom();
                 SendText.Text = "";
             }
         }
@@ -199,28 +253,22 @@ namespace SerialComm
                     if (n.Equals("300"))
                     {
                         ReceiveText.Text += $"[{DateTime.Now}][WARNING]: Reading failed\n";
-                        return;
+                        Scroller.ScrollToBottom();
                     }
                     else if(n.Equals("301"))
                     {
                         ReceiveText.Text += $"[{DateTime.Now}][WARNING]: Reading authentication failed\n";
-                        return;
+                        Scroller.ScrollToBottom();
                     }
-                    else if (n.Equals("400"))
+                    else
                     {
-                        ReceiveText.Text += $"[{DateTime.Now}][WARNING]: Writing failed\n";
-                        return;
-                    }
-                    else if (n.Equals("401"))
-                    {
-                        ReceiveText.Text += $"[{DateTime.Now}][WARNING]: Writing authentication failed\n";
-                        return;
-                    }
-                    ReceiveText.Text += $"[{DateTime.Now}][INFO]: Received: {n}\n";
-                    var split = n.Split("-");
-                    if (split[0].Equals(_prefix))
-                    {
-                        FindRacer(split[1]);
+                        ReceiveText.Text += $"[{DateTime.Now}][INFO]: Received: {n}\n";
+                        Scroller.ScrollToBottom();
+                        var split = n.Split("-");
+                        if (split[0].Equals(_prefix))
+                        {
+                            FindRacer(split[1]);
+                        }
                     }
                 }
             });
@@ -228,19 +276,29 @@ namespace SerialComm
 
         private void FindRacer(string bib)
         {
-            var r = _linkHandler.Racers.Find(x => x.Bib.Equals(bib));
-            Dispatcher.Invoke(() =>
+            if (_linkHandler is not null)
             {
-                if (_window is not null)
+                var r = _linkHandler.Racers.Find(x => x.Bib.Equals(bib));
+                Dispatcher.Invoke(() =>
                 {
-                    _window.NameLabelR.Content = r.Name;
-                    _window.BibLabelR.Content = r.Bib;
-                    _window.TimeLabelR.Content = r.Time;
-                    _window.AGRLabelR.Content = r.AgeGroupRank;
-                    _window.GRLabelR.Content = r.GenderRank;
-                    _window.ORLabelR.Content = r.OverallRank;
-                }
-            });
+                    if (_window is not null && r is not null)
+                    {
+                        _window.NameLabelR.Content = r.Name;
+                        _window.BibLabelR.Content = r.Bib;
+                        _window.TimeLabelR.Content = r.Time;
+                        _window.AGRLabelR.Content = r.AgeGroupRank;
+                        _window.GRLabelR.Content = r.GenderRank;
+                        _window.ORLabelR.Content = r.OverallRank;
+                        ReceiveText.Text += $"[{DateTime.Now}][INFO]: Number {bib} found\n";
+                        Scroller.ScrollToBottom();
+                    }
+                    else
+                    {
+                        ReceiveText.Text += $"[{DateTime.Now}][WARNING]: Number {bib} not found\n";
+                        Scroller.ScrollToBottom();
+                    }
+                });
+            }
         }
 
         private void GetData(object sender, EventArgs ea)
@@ -254,7 +312,40 @@ namespace SerialComm
             {
                 Dispatcher.Invoke(() =>
                 {
-                    ReceiveText.Text += $"[{DateTime.Now}][INFO]: Writing new data\n";
+                    var data = _port.ReadExisting();
+                    var n = data.Replace("\n", "").Replace("\r", "").Replace(" ", "");
+                    if (n.Equals("300"))
+                    {
+                        ReceiveText.Text += $"[{DateTime.Now}][WARNING]: Reading failed\n";
+                        Scroller.ScrollToBottom();
+                    }
+                    else if (n.Equals("301"))
+                    {
+                        ReceiveText.Text += $"[{DateTime.Now}][WARNING]: Reading authentication failed\n";
+                        Scroller.ScrollToBottom();
+                    }
+                    else if (n.Equals("400"))
+                    {
+                        ReceiveText.Text += $"[{DateTime.Now}][WARNING]: Writing failed\n";
+                        Scroller.ScrollToBottom();
+                    }
+                    else if (n.Equals("401"))
+                    {
+                        ReceiveText.Text += $"[{DateTime.Now}][WARNING]: Writing authentication failed\n";
+                        Scroller.ScrollToBottom();
+                    }
+                    else if (n.Equals("420"))
+                    {
+                        ReceiveText.Text += $"[{DateTime.Now}][INFO]: Writing successful\n";
+                        Scroller.ScrollToBottom();
+                    }
+                    else
+                    {
+                        SendBtn.IsEnabled = true;
+                        SendText.IsEnabled = true;
+                        ReceiveText.Text += $"[{DateTime.Now}][INFO]: Ready to write\n";
+                        Scroller.ScrollToBottom();
+                    }
                 });
             }
         }
